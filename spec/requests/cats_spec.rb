@@ -71,4 +71,43 @@ RSpec.describe "Cats", type: :request do
       expect(cats).to be_empty
     end
   end
+
+  describe 'cat validation error codes' do
+    it 'does not create a cat with a name' do
+      cat_params = {
+        cat: {
+          age: 2,
+          enjoys: 'Napping all day'
+        }
+      }
+      post '/cats', params: cat_params
+      expect(response.status).to eq 422
+      cat = JSON.parse(response.body)
+      expect(cat['name']).to include "can't be blank"
+    end
+    it 'does not create a cat with an age' do
+      cat_params = {
+        cat: {
+          name: 'Cat',
+          enjoys: 'Napping all day'
+        }
+      }
+      post '/cats', params: cat_params
+      expect(response).to have_http_status(422)
+      cat = JSON.parse(response.body)
+      expect(cat['age']).to include "can't be blank"
+    end
+    it 'does not create a cat with an enjoys' do
+      cat_params = {
+        cat: {
+          name: 'Toast',
+          age: 3
+        }
+      }
+      post '/cats', params: cat_params
+      expect(response).to have_http_status(422)
+      cat = JSON.parse(response.body)
+      expect(cat['enjoys']).to include "can't be blank"
+    end
+  end
 end
